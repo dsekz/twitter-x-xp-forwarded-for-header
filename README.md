@@ -1,7 +1,7 @@
 # Twitter X-Xp-Forwarded-For Header Reverse Engineering & Generator
 A few days ago, Twitter quietly added a new header: "X-Xp-Forwarded-For".
 
-As soon as I noticed it, I started digging in, turns out it's being generated inside a WASM module. I poked around the WASM and some of the JS, and saw it was pulling in some basic fingerprint data and grabbing stuff from cookies.
+As soon as I noticed it, I started digging in, turns out it's being generated inside a WASM. I poked around the WASM and some of the JS, and saw it was pulling in some basic fingerprint data and grabbing stuff from cookies.
 
 Hold up... did Twitter just build their own anti-bot system?
 
@@ -67,7 +67,7 @@ canvas_fingerprint
 
 After that, the module builds a JSON payload ($func410) and moves into the AES-GCM key derivation phase.
 
-The WASM module generates the AES-GCM key by extracting guest_id from cookies and combining it with a static base_key. This base_key isn’t fetched from anywhere, it’s hardcoded directly inside the WASM data section. The concatenation (base_key + guest_id) is handled internally by $func20. That combined string is then passed to $func207 for a SHA-256 update. Once all data is fed in, $func208 finalizes the hash. Typical SHA-256 cycle, nothing fancy, just buried in WASM bullshit.
+The WASM generates the AES-GCM key by extracting guest_id from cookies and combining it with a static base_key. This base_key isn’t fetched from anywhere, it’s hardcoded directly inside the WASM data section. The concatenation (base_key + guest_id) is handled internally by $func20, producing a single string. That string is then passed into the SHA-256 hashing process: it goes first through $func207 (SHA-256 update), and once all data is processed, $func208 finalizes the hash. Typical SHA-256 cycle, nothing fancy, just buried in WASM bullshit. The resulting 32-byte SHA-256 digest is what becomes the actual AES-GCM key used in encryption.
 
 Once the key is ready, execution continues with $func250, which performs AES key expansion using the derived key to set up the AES context. Then $func266 handles the core AES-GCM encryption, it encrypts the plaintext JSON using the key and IV. During encryption (the process between $func250 and $func266), the module writes the IV to memory first, followed by the ciphertext, and finally the authentication tag. Once all three (IV + ciphertext + tag) are laid out consecutively in memory, the entire buffer is converted to hex and returned as the final output.
 
