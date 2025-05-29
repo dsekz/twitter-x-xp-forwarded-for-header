@@ -8,7 +8,7 @@ Hold up... did Twitter just build their own anti-bot system?
 # Generator
 
 The code block below lets you generate or decrypt any XPFF header.
-To understand how the base_key works, check out the Reverse Engineering section. (This key is hardcoded inside the WASM, so as long as you provide a valid guest_id, everything should work correctly.)
+To understand how the base_key works, check out the Reverse Engineering section. (This key is hardcoded inside the WASM, so as long as you provide a valid guest_id, everything should work correctly. There is no need for extra scraping because it is not dynamic (for now))
 The guest_id should be your guest_id value from your Twitter cookies (URL-encoded).
 
 ```python
