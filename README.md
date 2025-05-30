@@ -7,9 +7,15 @@ Hold up... did Twitter just build their own anti-bot system?
 
 # Generator
 
-The code block below lets you generate or decrypt any XPFF header.
-To understand how the base_key works, check out the Reverse Engineering section. (This key is hardcoded inside the WASM, so as long as you provide a valid guest_id, everything should work correctly. There is no need for extra scraping because it is not dynamic (for now))
-The guest_id should be your guest_id value from your Twitter cookies (URL-encoded).
+The code block below allows you to generate or decrypt any XPFF header.
+
+To understand how the base_key works, refer to the Reverse Engineering section. This key is hardcoded inside the WASM, so as long as you provide a valid guest_id, everything should function correctly. For now, there's no need for additional scraping since the key is not dynamic.
+
+Your guest_id should be the one found in your Twitter cookies, and it must be URL-encoded.
+
+The reason guest_id is used is because the AES key is derived from a SHA-256 hash of base_key + guest_id. The payload is quite simple at this stage: just include your user agent and a timestamp in milliseconds, encrypt it, and you're set.
+
+Also keep in mind: the encrypted value is only valid for 300,000 milliseconds (5 minutes). This means you'll need to refresh the key after that window. Generating a new one for every request is not recommended; it's unnecessary and could potentially get you flagged.
 
 ```python
 from twitter_xpff import XPFFHeaderGenerator
@@ -18,9 +24,9 @@ base_key = "0e6be1f1e21ffc33590b888fd4dc81b19713e570e805d4e5df80a493c9571a05"
 xpff_gen = XPFFHeaderGenerator(base_key)
 
 guest_id = "v1%3A174849298500261196"
-message = '{"webgl_fingerprint":"","canvas_fingerprint":"","navigator_properties":{"hasBeenActive":"false","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0","webdriver":"false"},"codec_fingerprint":"","audio_fingerprint":"","audio_properties":null,"created_at":1748492990477}'
+xpff_plain = '{"webgl_fingerprint":"","canvas_fingerprint":"","navigator_properties":{"hasBeenActive":"false","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0","webdriver":"false"},"codec_fingerprint":"","audio_fingerprint":"","audio_properties":null,"created_at":1748492990477}'
 
-encrypted = xpff_gen.generate_xpff(message, guest_id)
+encrypted = xpff_gen.generate_xpff(xpff_plain, guest_id)
 print("Encrypted:", encrypted)
 
 decrypted = xpff_gen.decode_xpff(encrypted, guest_id)
