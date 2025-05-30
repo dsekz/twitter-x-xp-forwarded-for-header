@@ -15,7 +15,7 @@ Your guest_id should be the one found in your Twitter cookies, and it must be UR
 
 The reason guest_id is used is because the AES key is derived from a SHA-256 hash of base_key + guest_id. The payload is quite simple at this stage: just include your user agent and a timestamp in milliseconds, encrypt it, and you're set.
 
-Also keep in mind: the encrypted value is only valid for 300,000 milliseconds (5 minutes). This means you'll need to refresh the key after that window. Generating a new one for every request is not recommended; it's unnecessary and could potentially get you flagged.
+Also keep in mind: the encrypted value is only valid for 300,000 milliseconds (5 minutes). This means you'll need to refresh the key after that window.
 
 ```python
 from twitter_xpff import XPFFHeaderGenerator
