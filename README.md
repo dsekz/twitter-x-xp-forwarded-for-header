@@ -13,9 +13,14 @@ To understand how the base_key works, refer to the Reverse Engineering section. 
 
 Your guest_id should be the one found in your Twitter cookies, and it must be URL-encoded.
 
-The reason guest_id is used is because the AES key is derived from a SHA-256 hash of base_key + guest_id. The payload is quite simple at this stage: just include your user agent and a timestamp in milliseconds, encrypt it, and you're set.
+The reason guest_id is used is because the AES key is derived from a SHA-256 hash of base_key + guest_id. The payload is quite simple at this stage: just include your user agent and a timestamp in milliseconds, encrypt it.
 
-Also keep in mind: the encrypted value is only valid for 300,000 milliseconds (5 minutes). This means you'll need to refresh the key after that window.
+Also keep in mind: the encrypted value is only valid for 300,000 milliseconds (5 minutes).
+
+
+Disclaimer:
+
+For research purposes only. Don’t use this to mess with real systems.
 
 ```python
 from twitter_xpff import XPFFHeaderGenerator
@@ -120,6 +125,7 @@ Twitter will develop this soon. In its current state, the protections are pretty
 
 I will also publish this in more detail and in a cleaner format on my blog soon. Thank you for reading.
 
-Disclaimer
+
+Disclaimer:
 
 For research purposes only. Don’t use this to mess with real systems.
